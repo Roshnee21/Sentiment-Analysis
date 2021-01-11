@@ -1,0 +1,440 @@
+{% extends 'base.html'%}
+
+{% block content %}
+
+
+
+<div class="main-cont" id="grad2">
+
+  <div class="container-fluid">
+    <div class="chartstyle3"> 
+    <div class="row" style="height: 300px;">
+     
+    <div class="col" align="center">
+      <button type="button" class="btn btn-primary negativetweets" data-toggle="modal" data-target="#negativetweets" style="margin-top:120px;">
+      Negative Tweets
+    </button>
+  </div>
+  <div class="col">
+    <div class="gauge gauge--liveupdate" id="gauge" style="margin-top:50px;">
+      <div class="gauge__container">
+        <div class="gauge__marker"></div>
+        <div class="gauge__background"></div>
+        <div class="gauge__center"></div>
+        <div class="gauge__data"></div>
+        <div class="gauge__needle"></div>
+      </div>
+      <div class="gauge__labels mdl-typography__headline" style="color:#777;font-weight:bold;font-size:20px;">
+          <span class="gauge__label--low" >Negative</span>
+          <span class="gauge__label--spacer"></span>
+          <span class="gauge__label--high">Positive</span>
+      </div>
+    </div>
+  </div>
+    <div class="col" align="center">
+    <button type="button" class="btn btn-primary positivetweets" data-toggle="modal" data-target="#positivetweets" style = "margin-top:120px;">
+      Positive Tweets
+    </button>
+  </div>
+  </div>
+</div>
+      <div class="row">   
+
+<!-- Modal -->
+<div class="modal fade" id="positivetweets" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document" >
+    <div class="modal-content" >
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Top 5 Positive Tweets</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" >
+        <table class="table table-dark" style="font-family:Arial, Helvetica, sans-serif;">
+          <thead>
+            <tr>
+              <th scope="col">Tweets</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in positivetweets %}
+              <tr><td>{{i}}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="negativetweets" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Top 5 Negative Tweets</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-dark" style="font-family:Arial, Helvetica, sans-serif;">
+          <thead>
+            <tr>
+              <th scope="col">Tweets</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in negativetweets %}
+              <tr><td>{{i}}</td></tr>
+            {% endfor %}
+           
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="col-lg-6 col-md-6">
+<div class="container chartstyle">
+    <canvas id="tweetsentiment"></canvas>
+</div>
+</div>
+<div class="col-lg-6 col-md-6">
+<div class="container chartstyle2">
+  <canvas id="tweetperhr"></canvas>
+</div>
+</div>
+</div> 
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+<div class="container chartstyle1">
+  <canvas id="frequentwords" width="100%"></canvas>
+</div>
+</div>
+</div>
+</div>
+  {% block jQuery %}
+  
+
+<script>
+  
+    
+    var tweetpositive = "{{tweetpositive}}";
+    var tweetnegative = "{{tweetnegative}}";
+    var tweetneutral = "{{tweetneutral}}";
+  
+    let myChart = document.getElementById('tweetsentiment').getContext('2d');
+
+    // Global Options
+    Chart.defaults.global.defaultFontFamily = 'Lato';
+    Chart.defaults.global.defaultFontSize = 18;
+    Chart.defaults.global.defaultFontColor = '#777';
+
+    let massPopChart = new Chart(myChart, {
+      type:'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+      data:{
+        labels:['Positive', 'Negative', 'Neutral'],
+        datasets:[{
+          label:"Sentiments",
+          data:[
+            tweetpositive,
+            tweetnegative,
+            tweetneutral
+          ],
+          fillcolor:"black",
+          backgroundColor:'green',
+          backgroundColor:'#007bff',
+          borderWidth:1,
+          borderColor:'#777',
+          hoverBorderWidth:3,
+          hoverBorderColor:'#000'
+        }]
+      },
+      options:{
+        title:{
+          display:true,
+          text:'Tweet Sentiments',
+          fontSize:25
+        },
+        legend:{
+          display:true,
+          position:'right',
+          labels:{
+            fontColor:'#fff'
+          }
+        },
+        layout:{
+          padding:{
+            left:50,
+            right:0,
+            bottom:0,
+            top:0
+          }
+        },
+        tooltips:{
+          enabled:true
+        }
+      }
+    });
+
+      // #### Gauge
+
+// The Gauge object encapsulates the behavior
+// of simple gauge. Most of the implementation
+// is in the CSS rules, but we do have a bit
+// of JavaScript to set or read the gauge value
+
+tweetpositive = parseInt(tweetpositive);
+tweetneutral = parseInt(tweetneutral);
+tweetnegative = parseInt(tweetnegative);
+var avg = (tweetpositive+tweetneutral/2)/(tweetpositive+tweetnegative+tweetneutral);
+console.log(avg);
+
+
+
+function Gauge(el) {
+
+  // ##### Private Properties and Attributes
+
+  var element,      // Containing element for the info component
+      data,         // `.gauge__data` element
+      needle,       // `.gauge__needle` element
+      value = 0.0,  // Current gauge value from 0 to 1
+      prop;         // Style for transform
+
+  // ##### Private Methods and Functions
+
+  var setElement = function(el) {
+      // Keep a reference to the various elements and sub-elements
+      element = el;
+      data = element.querySelector(".gauge__data");
+      needle = element.querySelector(".gauge__needle");
+  };
+
+  var setValue = function(x) {
+      value = x;
+      var turns = -0.5 + (x * 0.5);
+      data.style[prop] = "rotate(" + turns + "turn)";
+      needle.style[prop] = "rotate(" + turns + "turn)";
+  };
+
+  // ##### Object to be Returned
+
+  function exports() { };
+
+  // ##### Public API Methods
+
+  exports.element = function(el) {
+      if (!arguments.length) { return element; }
+      setElement(el);
+      return this;
+  };
+
+  exports.value = function(x) {
+      if (!arguments.length) { return value; }
+      setValue(x);
+      return this;
+  };
+
+  // ##### Initialization
+
+  var body = document.getElementsByTagName("body")[0];
+  ["webkitTransform", "mozTransform", "msTransform", "oTransform", "transform"].
+      forEach(function(p) {
+          if (typeof body.style[p] !== "undefined") { prop = p; }
+      }
+  );
+
+  if (arguments.length) {
+      setElement(el);
+  }
+
+  return exports;
+
+};
+
+
+  var gauge = new Gauge(document.getElementById("gauge"));
+
+  gauge.value(avg);
+    
+</script>
+
+<script>
+   
+    var commonfreq ="{{commonfreq}}";
+    var commonword ="{{commonword}}";
+    commonfreq = commonfreq.split(",");
+    commonfreq.shift();
+    commonfreq.pop();
+    commonword = commonword.split(",");
+    commonword.shift();
+    commonword.pop();
+    
+    for(var i=0;i<commonfreq.length;i++){
+      commonfreq[i] = parseInt(commonfreq[i]);
+      commonword[i] = commonword[i].slice(7);
+      commonword[i] = commonword[i].slice(0,-6);
+    }
+   
+    
+    //$.ajax({
+    //    method: "GET",
+    //    url: endpoint,
+    //    success: function(data){
+    //        console.log(data)
+    //        console.log(data.customers*234)
+    //    }
+        
+
+    //})
+    let frequentwords= document.getElementById('frequentwords').getContext('2d');
+
+    // Global Options
+    Chart.defaults.global.defaultFontFamily = 'Lato';
+    Chart.defaults.global.defaultFontSize = 18;
+    Chart.defaults.global.defaultFontColor = '#777';
+
+    let massPopChart1 = new Chart(frequentwords, {
+      type:'horizontalBar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+      data:{
+        labels:commonword,
+        
+        datasets:[{
+            label:"Frequency",  
+          data:commonfreq,
+          backgroundColor:'#007bff',
+          borderWidth:1,
+          borderColor:'#777',
+          hoverBorderWidth:3,
+          hoverBorderColor:'#000'
+        }]
+      },
+      options:{
+        title:{
+          display:true,
+          text:'Frequent Words',
+          fontSize:25
+        },
+        legend:{
+          display:true,
+          position:'right',
+          labels:{
+            fontColor:'#fff'
+          }
+        },
+        layout:{
+          padding:{
+            left:50,
+            right:0,
+            bottom:0,
+            top:0
+          }
+        },
+        tooltips:{
+          enabled:true
+        }
+      }
+    });
+    
+</script>
+
+<script>
+   
+  var tweetprhr = "{{tweetperhr}}";
+  var tweetprhrcount = "{{tweetperhrcount}}";
+  tweetprhr = tweetprhr.split(",");
+  
+  tweetprhr.shift();
+  
+  
+  tweetprhrcount = tweetprhrcount.split(",");
+  
+  tweetprhrcount.shift();
+  
+  
+  for(var i=0;i<tweetprhr.length;i++){
+    tweetprhr[i] = parseInt(tweetprhr[i]);
+    tweetprhrcount[i] = parseInt(tweetprhrcount[i]);
+  
+  }
+ 
+  
+  
+  let tweetperhr= document.getElementById('tweetperhr').getContext('2d');
+
+  // Global Options
+  Chart.defaults.global.defaultFontFamily = 'Lato';
+  Chart.defaults.global.defaultFontSize = 12;
+  Chart.defaults.global.defaultFontColor = '#777';
+
+  let massPopChart2 = new Chart(tweetperhr, {
+    type:'line', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+    data:{
+      labels:tweetprhr,
+      
+      datasets:[{
+          label:"Frequency",  
+        data:tweetprhrcount,
+        backgroundColor:'green',
+        backgroundColor:[
+        '#007bff'
+        ],
+        borderWidth:1,
+        borderColor:'#777',
+        hoverBorderWidth:3,
+        hoverBorderColor:'#000'
+      }]
+    },
+    options:{
+      title:{
+        display:true,
+        text:'Tweets Per Hr.',
+        fontSize:25
+      },
+      legend:{
+        display:true,
+        position:'right',
+        labels:{
+          fontColor:'#fff'
+        }
+      },
+      layout:{
+        padding:{
+          left:50,
+          right:0,
+          bottom:0,
+          top:0
+        }
+      },
+      tooltips:{
+        enabled:true
+      }
+    }
+  });
+  
+</script>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
+{% endblock %}
+
+
+
+
