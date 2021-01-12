@@ -16,10 +16,10 @@ import time
 def home(request):
         #all the libraries are imported 
     def livetweets():
-        consumer_key = 'y0xbgZ91ZFqIJ68BHVeUYrr5L'
-        consumer_secret = 'ClQqeBQv3KPSZj38QXWNlkx84ZS2CinqDWYM9U1fbZCWFbvaXV'
-        access_token = '1274399613189939200-8qbR2lD4l5zyE8uHiz5fgT6HkeBB3W'
-        access_token_secret = 'IFuNypvlMuGrxSs9uLaXJNnp3ouqWeCcrorBynrU6zoQB'
+        consumer_key = 'xxxxxxxxxxxxxxxxx' # enter your deatils for the developer account of Twitter
+        consumer_secret = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        access_token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+        access_token_secret = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
         # Creating the authentication object
         auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
